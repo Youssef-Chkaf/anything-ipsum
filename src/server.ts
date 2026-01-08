@@ -14,9 +14,10 @@ import {join} from 'node:path';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 
-const browserDistFolder = join(import.meta.dirname, '../browser');
+const browserDistFolder = join(process.cwd(), 'dist/anything-ipsum/browser');
 
-const app = express();
+// Ajoutez 'export' devant const app
+export const app = express();
 const angularApp = new AngularNodeAppEngine();
 
 // Middleware pour parser le JSON
@@ -39,12 +40,17 @@ const apiLimiter = rateLimit({
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({status: 'ok', timestamp: new Date().toISOString()});
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    ai_connection: 'connected'
+  });
 });
 
 
-// API endpoint pour générer le lorem ipsum
-app.post('/api/generate-lorem', apiLimiter, async (req, res): Promise<void> => {
+// Modifiez la route pour accepter aussi /api/generate
+app.post(['/api/generate-lorem', '/api/generate'], apiLimiter, async (req, res): Promise<void> => {
   try {
     const {theme, paragraphs, paragraphLength, stream = true} = req.body;
 
@@ -258,14 +264,12 @@ app.use((req, res, next) => {
  * Start the server if this module is the main entry point.
  * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
  */
-if (isMainModule(import.meta.url)) {
+if (process.env['NODE_ENV'] !== 'test') {
   const port = process.env['PORT'] || 4000;
-  app.listen(port, (error) => {
-    if (error) {
-      throw error;
+  app.listen(port, () => {
+    if (process.env['NODE_ENV'] !== 'test') {
+      console.log(`Node Express server listening on http://localhost:${port}`);
     }
-
-    console.log(`Node Express server listening on http://localhost:${port}`);
   });
 }
 
