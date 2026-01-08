@@ -21,7 +21,7 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: npm install # Au lieu de npm ci, pour contourner le problème de sync
+        run: npm ci
       
       - name: Run tests
         run: npm test
