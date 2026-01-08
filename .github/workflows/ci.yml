@@ -27,4 +27,5 @@ jobs:
           npm install --no-audit --no-fund --prefer-offline
       
       - name: Run tests
-        run: npm test
+        # On lance uniquement les tests API (backend) car les tests Angular nécessitent Chrome
+        run: npm run test:api
